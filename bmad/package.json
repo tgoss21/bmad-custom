@@ -1,0 +1,46 @@
+{
+  "name": "bmad-method",
+  "version": "4.0.0",
+  "description": "Breakthrough Method of Agile AI-driven Development",
+  "main": "tools/cli.js",
+  "bin": {
+    "bmad": "./tools/bmad-npx-wrapper.js",
+    "bmad-method": "./tools/bmad-npx-wrapper.js"
+  },
+  "scripts": {
+    "build": "node tools/cli.js build",
+    "build:agents": "node tools/cli.js build --agents-only",
+    "build:teams": "node tools/cli.js build --teams-only",
+    "list:agents": "node tools/cli.js list:agents",
+    "validate": "node tools/cli.js validate",
+    "install:bmad": "node tools/installer/bin/bmad.js install"
+  },
+  "dependencies": {
+    "commander": "^9.4.1",
+    "js-yaml": "^4.1.0",
+    "@kayvan/markdown-tree-parser": "^1.4.2",
+    "chalk": "^4.1.2",
+    "fs-extra": "^11.1.0",
+    "inquirer": "^8.2.5",
+    "ora": "^5.4.1",
+    "glob": "^8.0.3"
+  },
+  "keywords": [
+    "agile",
+    "ai",
+    "orchestrator",
+    "development",
+    "methodology",
+    "agents",
+    "bmad"
+  ],
+  "author": "Brian (BMad) Madison",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/bmad-method.git"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
