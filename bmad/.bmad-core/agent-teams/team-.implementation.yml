@@ -1,0 +1,23 @@
+bundle:
+  name: Team .Implementation
+  icon: ⚡
+  description: >-
+    Pure implementation team focused on executing pre-planned projects. This team 
+    takes over after planning and strategy phases are complete, providing all 
+    personnel needed for the implementation process including frontend development, 
+    backend development, DevOps, infrastructure, quality assurance, and story 
+    management. Specializes in brownfield projects where requirements and 
+    architecture are already defined.
+
+agents:
+  - bmad-orchestrator
+  - sm
+  - dev
+  - frontend-dev
+  - qa
+  - dev-test
+
+workflows:
+  - brownfield-fullstack
+  - brownfield-service
+  - brownfield-ui
