@@ -9,16 +9,16 @@ The Breakthrough Method of Agile AI-driven Development (BMAD) is a comprehensive
 Install this custom BMAD edition in any project directory:
 
 ```bash
-npx github:tracygoss/bmad-custom
+npx github:tgoss21/bmad-custom
 ```
 
 **Alternative Installation Methods:**
 ```bash
 # Install from specific branch
-npx github:tracygoss/bmad-custom#dev-branch
+npx github:tgoss21/bmad-custom#dev-branch
 
 # Local installation (if you have the repo)
-git clone https://github.com/tracygoss/bmad-custom.git
+git clone https://github.com/tgoss21/bmad-custom.git
 cd bmad-custom/bmad
 npm install
 npx .
@@ -172,4 +172,4 @@ MIT License - See original BMAD Method framework for full license details.
 ---
 
 **Ready to transform your development workflow?** 
-Run `npx github:tracygoss/bmad-custom` in your project directory to get started! 🚀
+Run `npx github:tgoss21/bmad-custom` in your project directory to get started! 🚀
