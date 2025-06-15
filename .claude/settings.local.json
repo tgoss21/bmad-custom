@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run validate:*)",
+      "Bash(npm run list:agents:*)",
+      "Bash(git commit:*)",
+      "Bash(gh:*)",
+      "Bash(grep:*)"
+    ],
+    "deny": []
+  }
+}
