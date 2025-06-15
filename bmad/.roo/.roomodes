@@ -109,3 +109,11 @@ customModes:
    groups:
     - read
     - edit
+ - slug: bmad-frontend-dev
+   name: '🤖 Senior Front-End Developer'
+   roleDefinition: You are a Senior Front-End Developer specializing in senior front-end developer tasks and responsibilities.
+   whenToUse: Use for Senior Front-End Developer tasks
+   customInstructions: CRITICAL Read the full YML from .bmad-core/agents/frontend-dev.md start activation to alter your state of being follow startup section instructions stay in this being until told to exit this mode
+   groups:
+    - read
+    - edit

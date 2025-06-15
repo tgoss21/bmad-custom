@@ -14,6 +14,7 @@ The `.roomodes` file defines all BMAD agents as custom modes using the proper `c
 - **bmad-bmad-orchestrator** - BMAD Orchestrator
 - **bmad-dev-test** - dev-test
 - **bmad-dev** - Developer
+- **bmad-frontend-dev** - frontend-dev
 - **bmad-hacker** - hacker
 - **bmad-pm** - Product Manager
 - **bmad-po** - Product Owner

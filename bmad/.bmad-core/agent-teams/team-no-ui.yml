@@ -9,6 +9,9 @@ agents:
   - pm
   - architect
   - po
+  - sm
+  - dev
+  - qa
 
 workflows:
   - greenfield-service

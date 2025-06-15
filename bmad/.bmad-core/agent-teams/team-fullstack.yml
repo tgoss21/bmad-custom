@@ -16,6 +16,10 @@ agents:
   - ux-expert
   - architect
   - po
+  - sm
+  - dev
+  - frontend-dev
+  - qa
 
 workflows:
   - brownfield-fullstack
