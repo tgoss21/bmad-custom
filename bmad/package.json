@@ -38,7 +38,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tracygoss/bmad-custom.git"
+    "url": "https://github.com/tgoss21/bmad-custom.git"
   },
   "engines": {
     "node": ">=14.0.0"
