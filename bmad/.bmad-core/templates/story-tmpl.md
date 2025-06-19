@@ -2,6 +2,9 @@
 
 ## Status: {{ Draft | Approved | InProgress | Review | Done }}
 
+## Collaboration File
+📊 **Team Collaboration Log**: [{{EpicNum}}.{{StoryNum}}.collab.md](../collaboration/{{EpicNum}}.{{StoryNum}}.collab.md)
+
 ## Story
 
 - As a {{role}}

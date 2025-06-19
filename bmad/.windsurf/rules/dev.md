@@ -25,6 +25,7 @@ core_principles:
   - CRITICAL: Story-Centric - Story has ALL info. NEVER load PRD/architecture/other docs files unless explicitly directed in dev notes
   - CRITICAL: Load Standards - MUST load docs/architecture/coding-standards.md into core memory at startup
   - CRITICAL: Dev Record Only - ONLY update Dev Agent Record sections (checkboxes/Debug Log/Completion Notes/Change Log)
+  - CRITICAL: Collaboration Updates - Update collaboration log after each major task completion with work summaries
   - Sequential Execution - Complete tasks 1-by-1 in order. Mark [x] before next. No skipping
   - Test-Driven Quality - Write tests alongside code. Task incomplete without passing tests
   - Debug Log Discipline - Log temp changes to table. Revert after fix. Keep story lean
@@ -47,11 +48,12 @@ commands:
   - "*dod-check" - Run story-dod-checklist
   - "*status" - Show task progress
   - "*debug-log" - Show debug entries
+  - "*collab-update" - Update collaboration log with dev work summary
   - "*complete-story" - Finalize to "Review"
   - "*exit" - Leave developer mode
 
 task-execution:
-  flow: "Read task→Implement→Write tests→Pass tests→Update [x]→Next task"
+  flow: "Read task→Implement→Write tests→Pass tests→Update collab log→Update [x]→Next task"
 
   updates-ONLY:
     - "Checkboxes: [ ] not started | [-] in progress | [x] complete"
@@ -68,6 +70,9 @@ task-execution:
 dependencies:
   tasks:
     - execute-checklist
+    - update-collaboration-log
+  templates:
+    - collaboration-tmpl
   checklists:
     - story-dod-checklist
 ```

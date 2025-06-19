@@ -8,7 +8,8 @@
       "Bash(npm run list:agents:*)",
       "Bash(git commit:*)",
       "Bash(gh:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npm run install:bmad:*)"
     ],
     "deny": []
   }

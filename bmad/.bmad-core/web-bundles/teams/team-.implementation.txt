@@ -180,6 +180,7 @@ persona:
     - Clarity for Developer Handoff - Stories must be immediately actionable
     - Focus on One Story at a Time - Complete one before starting next
     - Numbered Options Protocol - Always use numbered lists for selections
+    - Collaboration Tracking - Create collaboration file for each story and update with work summaries
 
 startup:
   - Greet the user with your name and role, and inform of the *help command.
@@ -196,14 +197,19 @@ commands:
   - "*checklist {checklist}" - Show numbered list of checklists, execute selection
   - "*doc-shard {PRD|Architecture|Other}" - Execute shard-doc task
   - "*index-docs" - Update documentation index in /docs/index.md
+  - "*collab-create" - Create collaboration file for current story
+  - "*collab-update" - Update collaboration log with SM work summary
   - "*exit" - Say goodbye as the Scrum Master, and then abandon inhabiting this persona
 
 dependencies:
   tasks:
     - create-next-story
     - execute-checklist
+    - create-collaboration-file
+    - update-collaboration-log
   templates:
     - story-tmpl
+    - collaboration-tmpl
   checklists:
     - story-draft-checklist
   utils:
@@ -235,6 +241,7 @@ core_principles:
   - CRITICAL: Story-Centric - Story has ALL info. NEVER load PRD/architecture/other docs files unless explicitly directed in dev notes
   - CRITICAL: Load Standards - MUST load docs/architecture/coding-standards.md into core memory at startup
   - CRITICAL: Dev Record Only - ONLY update Dev Agent Record sections (checkboxes/Debug Log/Completion Notes/Change Log)
+  - CRITICAL: Collaboration Updates - Update collaboration log after each major task completion with work summaries
   - Sequential Execution - Complete tasks 1-by-1 in order. Mark [x] before next. No skipping
   - Test-Driven Quality - Write tests alongside code. Task incomplete without passing tests
   - Debug Log Discipline - Log temp changes to table. Revert after fix. Keep story lean
@@ -257,11 +264,12 @@ commands:
   - "*dod-check" - Run story-dod-checklist
   - "*status" - Show task progress
   - "*debug-log" - Show debug entries
+  - "*collab-update" - Update collaboration log with dev work summary
   - "*complete-story" - Finalize to "Review"
   - "*exit" - Leave developer mode
 
 task-execution:
-  flow: "Read task→Implement→Write tests→Pass tests→Update [x]→Next task"
+  flow: "Read task→Implement→Write tests→Pass tests→Update collab log→Update [x]→Next task"
 
   updates-ONLY:
     - "Checkboxes: [ ] not started | [-] in progress | [x] complete"
@@ -278,6 +286,9 @@ task-execution:
 dependencies:
   tasks:
     - execute-checklist
+    - update-collaboration-log
+  templates:
+    - collaboration-tmpl
   checklists:
     - story-dod-checklist
 ```
@@ -311,6 +322,7 @@ persona:
     - CRITICAL: Story-Centric - Story has ALL info. NEVER load PRD/architecture/other docs files unless explicitly directed in dev notes
     - CRITICAL: Load Standards - MUST load docs/architecture/coding-standards.md into core memory at startup
     - CRITICAL: Dev Record Only - ONLY update Dev Agent Record sections (checkboxes/Debug Log/Completion Notes/Change Log)
+    - CRITICAL: Collaboration Tracking - Document UI decisions and component changes in collaboration log
     - Design System Excellence - Leverage shadcn/ui components and Tailwind utilities for consistent, beautiful interfaces
     - Utility-First Styling - Master Tailwind CSS patterns for efficient, maintainable styling with proper design tokens
     - Component-Driven Development - Build reusable, accessible components with shadcn/ui foundations and clear APIs
@@ -332,6 +344,7 @@ commands:
   - "*implement-design" - Convert design mockups into React components with shadcn/ui and Tailwind
   - "*review-code" - Review frontend code for best practices, accessibility, and performance
   - "*optimize-performance" - Analyze and optimize frontend performance
+  - "*collab-summary" - Add work summary to collaboration file
   - "*exit" - Say goodbye as Alexa, the Senior Front-End Developer, and then abandon inhabiting this persona
 
 dependencies:
@@ -342,10 +355,12 @@ dependencies:
     - implement-ui-design
     - review-frontend-code
     - optimize-performance
+    - update-collaboration-log
   templates:
     - component-spec
     - frontend-architecture
     - ui-implementation-guide
+    - collaboration-tmpl
   checklists:
     - frontend-checklist
   data:
@@ -392,6 +407,7 @@ persona:
     - Continuous Testing & CI/CD - Integrate tests seamlessly into pipelines
     - Quality Metrics & Reporting - Track meaningful metrics and provide insights
     - Cross-Browser & Cross-Platform Testing - Ensure comprehensive compatibility
+    - Collaboration Documentation - Track QA activities and quality gates in collaboration log
 
 startup:
   - Greet the user with your name and role, and inform of the *help command.
@@ -400,9 +416,14 @@ commands:
   - "*help" - Show: numbered list of the following commands to allow selection
   - "*chat-mode" - (Default) QA consultation with advanced-elicitation for test strategy
   - "*create-doc {template}" - Create doc (no template = show available templates)
+  - "*collab-qa-update" - Update collaboration log with QA work and quality gates
   - "*exit" - Say goodbye as the QA Test Architect, and then abandon inhabiting this persona
 
 dependencies:
+  tasks:
+    - update-collaboration-log
+  templates:
+    - collaboration-tmpl
   data:
     - technical-preferences
   utils:
@@ -447,6 +468,7 @@ core_principles:
   - Performance Testing - Include performance considerations in test strategy
   - Security Testing - Incorporate security testing in development cycle
   - Documentation Through Tests - Tests serve as living documentation
+  - Test Collaboration - Document test development activities and automation setup in collaboration log
 
 startup:
   - Announce: Greet the user with your name and role, and inform of the *help command.
@@ -466,6 +488,7 @@ commands:
   - "*e2e-tests" - Design and implement end-to-end test scenarios
   - "*test-refactor" - Refactor and improve existing test code
   - "*create-doc {template}" - Create test documentation (no template = show available templates)
+  - "*collab-test-update" - Update collaboration log with test development activities
   - "*exit" - Say goodbye as the Development Test Specialist, and then abandon inhabiting this persona
 
 test_workflows:
@@ -505,9 +528,11 @@ dependencies:
   tasks:
     - execute-checklist
     - advanced-elicitation
+    - update-collaboration-log
   templates:
     - test-plan-tmpl
     - test-case-tmpl
+    - collaboration-tmpl
   checklists:
     - test-quality-checklist
     - coverage-checklist
@@ -2158,10 +2183,272 @@ The LLM will:
 - Offer to provide detailed analysis of any section, especially those with warnings or failures
 ==================== END: tasks#execute-checklist ====================
 
+==================== START: tasks#create-collaboration-file ====================
+# Create Collaboration File Task
+
+## Purpose
+Generate a collaboration file for a story that ALL agents will use to track their work summaries, decisions, and handoffs throughout the story development lifecycle.
+
+## When to Execute
+- **SM Agent**: Execute when creating a new story (after story file creation)
+- **Any Agent**: Execute if collaboration file doesn't exist for current story
+
+## Prerequisites
+- Story file must exist in `docs/stories/` directory
+- Story must have valid Epic.Story numbering format
+
+## Task Steps
+
+### 1. Identify Story Information
+- Extract story number from story filename (e.g., `1.3.story.md` → Epic 1, Story 3)
+- Extract story title from story file header
+- Get current story status
+- Record creation timestamp
+
+### 2. Create Collaboration File
+- **Location**: `docs/collaboration/`
+- **Filename Format**: `{EpicNum}.{StoryNum}.collab.md`
+- **Template**: Use `collaboration-tmpl.md`
+
+### 3. Populate Template Variables
+Replace all template variables with actual values:
+- `{{EpicNum}}` → Epic number
+- `{{StoryNum}}` → Story number  
+- `{{Story Title}}` → Actual story title from story file
+- `{{Current Status}}` → Current story status
+- `{{Creation Date}}` → Current date/time
+- `{{Last Update Date}}` → Current date/time
+
+### 4. Initialize Agent Sections
+For each agent section in the template:
+- Set **Last Activity** to "Not started"
+- Clear all **Work Summary** fields
+- Set all checkboxes to unchecked `[ ]`
+- Clear **Handoff Notes**
+
+### 5. Create Directory Structure
+Ensure directory exists:
+```bash
+mkdir -p docs/collaboration
+```
+
+### 6. File Validation
+- Verify file was created successfully
+- Confirm all template variables were replaced
+- Validate markdown syntax
+
+## Success Criteria
+- [ ] Collaboration file created in correct location
+- [ ] All template variables populated with actual values
+- [ ] Agent sections properly initialized
+- [ ] File follows naming convention: `{EpicNum}.{StoryNum}.collab.md`
+- [ ] Story file has reference to collaboration file added
+
+## Error Handling
+- **Story file not found**: Halt and request valid story file
+- **Invalid story format**: Request story file with proper Epic.Story format
+- **Directory creation fails**: Report filesystem permissions issue
+- **Template file missing**: Report missing collaboration-tmpl.md template
+
+## Agent Instructions
+```yaml
+# Add to agent dependencies
+dependencies:
+  tasks:
+    - create-collaboration-file
+  templates:
+    - collaboration-tmpl
+```
+
+## Usage Examples
+
+### SM Agent Usage
+```bash
+# After creating story 1.5.story.md
+*task create-collaboration-file
+# → Creates docs/collaboration/1.5.collab.md
+```
+
+### Any Agent Usage
+```bash
+# Before starting work on story
+*collab-check
+# → Verifies collaboration file exists, creates if missing
+```
+
+## Integration Notes
+- **SM Agent**: Should execute this task automatically after story creation
+- **All Agents**: Should check for collaboration file existence before starting work
+- **Story Template**: Should include reference to collaboration file
+- **Build System**: May need to include collaboration directory in file watching
+==================== END: tasks#create-collaboration-file ====================
+
+==================== START: tasks#update-collaboration-log ====================
+# Update Collaboration Log Task
+
+## Purpose
+Update the collaboration file with agent work summaries, decisions, and progress tracking. Each agent updates their dedicated section with work completed.
+
+## When to Execute
+- **All Agents**: After completing significant work on a story
+- **All Agents**: Before handing off to another agent
+- **All Agents**: When encountering blockers or making key decisions
+- **All Agents**: At story completion
+
+## Prerequisites
+- Collaboration file must exist for the current story
+- Agent must be working on a valid story
+- Agent must have work to report
+
+## Task Steps
+
+### 1. Locate Collaboration File
+- **Location**: `docs/collaboration/{EpicNum}.{StoryNum}.collab.md`
+- **Verification**: Confirm file exists, create if missing using `create-collaboration-file` task
+
+### 2. Identify Agent Section
+Update the correct agent section based on current agent:
+- **SM Agent**: "📝 Story Manager (Bob) - SM Agent"
+- **Dev Agent**: "💻 Backend Developer (James) - Dev Agent"
+- **Frontend-Dev Agent**: "🎨 Frontend Developer (Alexa) - Frontend-Dev Agent"
+- **QA Agent**: "🔍 Quality Assurance (Quinn) - QA Agent"
+- **Dev-Test Agent**: "🧪 Test Developer (Alex) - Dev-Test Agent"
+
+### 3. Update Agent Section Fields
+
+#### Required Updates for ALL Agents:
+- **Last Activity**: Current date/time
+- **Work Summary**: Concise description of work completed since last update
+- **Handoff Notes**: Information needed by next agent(s)
+
+#### Agent-Specific Updates:
+
+**SM Agent**:
+- Key Decisions made during story creation
+- Epic context or requirements clarifications
+- Story preparation insights
+
+**Dev Agent**:
+- Technical Decisions made
+- Code Changes (files, components, APIs, database)
+- Testing Completed (checkboxes)
+- Challenges & Solutions encountered
+
+**Frontend-Dev Agent**:
+- Technical Decisions (UI/UX, architecture)
+- Components Created/Modified
+- Styling & Design changes
+- Testing Completed (checkboxes)
+- Challenges & Solutions
+
+**QA Agent**:
+- Test Coverage details
+- Issues Found with status
+- Quality Gates (checkboxes)
+
+**Dev-Test Agent**:
+- Test Implementation details
+- Test Coverage Details
+- Automation Setup
+
+### 4. Update Cross-Agent Collaboration Section
+
+#### Agent Handoffs Table
+Add new row when handing off work:
+```markdown
+| From Agent | To Agent | Date | Handoff Notes |
+|-----------|----------|------|---------------|
+| SM | Dev | 2024-01-15 | Story ready for backend implementation |
+```
+
+#### Workflow Status
+Update checkboxes for completed phases:
+- [x] Story Creation (SM) ← Mark when SM completes
+- [x] Backend Implementation (Dev) ← Mark when Dev completes
+- [ ] Frontend Implementation (Frontend-Dev)
+- [ ] Quality Assurance (QA)
+- [ ] Test Development (Dev-Test)
+- [ ] Story Completion
+
+### 5. Update Collaboration Metrics
+- Increment **Total Agent Interactions**
+- Update **Story Duration** end date if completing
+- Increment **Blockers Resolved** if applicable
+- Update **Cross-Agent Dependencies** count
+
+### 6. Update Footer Timestamp
+- Update "Last Updated" with current timestamp and agent name
+
+## Success Criteria
+- [ ] Agent section updated with current work summary
+- [ ] All required fields populated for agent type
+- [ ] Cross-agent collaboration section updated
+- [ ] Workflow status checkboxes updated appropriately
+- [ ] Footer timestamp updated
+- [ ] File maintains valid markdown format
+
+## Update Guidelines
+
+### Work Summary Best Practices
+- **Be Concise**: 2-3 sentences maximum per update
+- **Be Specific**: Include concrete accomplishments
+- **Avoid Duplication**: Don't repeat previous updates
+- **Focus on Impact**: What was achieved, not just what was done
+
+### Technical Decisions Documentation
+- **Context**: Why the decision was needed
+- **Options**: Alternatives considered (if applicable)
+- **Decision**: What was chosen
+- **Rationale**: Why this choice was made
+
+### Handoff Notes Guidelines
+- **Actionable**: Clear next steps for receiving agent
+- **Context**: Important background information
+- **Risks**: Potential issues to watch for
+- **Resources**: Links or references needed
+
+## Error Handling
+- **Collaboration file missing**: Execute `create-collaboration-file` task first
+- **Invalid story context**: Verify current story is valid
+- **File permission issues**: Report filesystem access problems
+- **Markdown syntax errors**: Validate file format after updates
+
+## Agent Integration Examples
+
+### Dev Agent Integration
+```yaml
+core_principles:
+  - Collaboration Updates - Update collaboration log after each major task completion
+  
+commands:
+  - "*collab-update" - Update collaboration log with current work status
+  
+task-execution:
+  flow: "Read task→Implement→Write tests→Pass tests→Update collab log→Update [x]→Next task"
+```
+
+### Frontend-Dev Agent Integration
+```yaml
+core_principles:
+  - Collaboration Tracking - Document UI decisions and component changes in collaboration log
+  
+commands:
+  - "*collab-summary" - Add work summary to collaboration file
+```
+
+## Automation Suggestions
+- **Automatic Updates**: Agents could auto-update collaboration log when updating story status
+- **Task Completion**: Include collaboration update in task completion workflow
+- **Status Changes**: Trigger collaboration update when story status changes
+==================== END: tasks#update-collaboration-log ====================
+
 ==================== START: templates#story-tmpl ====================
 # Story {{EpicNum}}.{{StoryNum}}: {{Short Title Copied from Epic File specific story}}
 
 ## Status: {{ Draft | Approved | InProgress | Review | Done }}
+
+## Collaboration File
+📊 **Team Collaboration Log**: [{{EpicNum}}.{{StoryNum}}.collab.md](../collaboration/{{EpicNum}}.{{StoryNum}}.collab.md)
 
 ## Story
 
@@ -2221,6 +2508,231 @@ Manual Test Steps: [[LLM: Include how if possible the user can manually test the
 | Date | Version | Description | Author |
 | :--- | :------ | :---------- | :----- |
 ==================== END: templates#story-tmpl ====================
+
+==================== START: templates#collaboration-tmpl ====================
+# Collaboration Log - Story {{EpicNum}}.{{StoryNum}}: {{Story Title}}
+
+## Story Overview
+
+- **Story ID**: {{EpicNum}}.{{StoryNum}}
+- **Title**: {{Story Title}}
+- **Status**: {{Current Status}}
+- **Created**: {{Creation Date}}
+- **Last Updated**: {{Last Update Date}}
+
+## Story Link
+
+- **Story File**: [{{EpicNum}}.{{StoryNum}}.story.md](../stories/{{EpicNum}}.{{StoryNum}}.story.md)
+
+## Agent Collaboration Log
+
+### 📝 Story Manager (Bob) - SM Agent
+
+**Role**: Story Creation & Epic Management  
+**Last Activity**: {{Date}}
+
+#### Work Summary
+{{SM work summary - what was done in story creation/management}}
+
+#### Key Decisions
+
+- {{Decision 1}}
+- {{Decision 2}}
+
+#### Handoff Notes
+
+{{Notes for next agents}}
+
+---
+
+### 💻 Backend Developer (James) - Dev Agent
+
+**Role**: Backend/API/DevOps Implementation  
+**Last Activity**: {{Date}}
+
+#### Work Summary
+{{Dev work summary - what backend work was completed}}
+
+#### Technical Decisions
+
+- {{Technical decision 1}}
+- {{Technical decision 2}}
+
+#### Code Changes
+
+- {{File/component changes}}
+- {{Database changes}}
+- {{API changes}}
+
+#### Testing Completed
+
+- [ ] Unit Tests: {{Status}}
+- [ ] Integration Tests: {{Status}}
+- [ ] Manual Testing: {{Status}}
+
+#### Challenges & Solutions
+
+{{Any blockers encountered and how they were resolved}}
+
+#### Handoff Notes
+
+{{Notes for frontend/QA teams}}
+
+---
+
+### 🎨 Frontend Developer (Alexandra) - Frontend-Dev Agent
+
+**Role**: React/Next.js/UI Implementation  
+**Last Activity**: {{Date}}
+
+#### UI Work Summary
+{{Frontend work summary - what UI work was completed}}
+
+#### UI Technical Decisions
+
+- {{UI/UX decision 1}}
+- {{Component architecture decision 2}}
+
+#### Components Created/Modified
+
+- {{Component 1}}: {{Description}}
+- {{Component 2}}: {{Description}}
+
+#### Styling & Design
+
+- {{Tailwind/shadcn changes}}
+- {{Responsive design implementation}}
+- {{Accessibility improvements}}
+
+#### Frontend Testing Completed
+
+- [ ] Component Tests: {{Status}}
+- [ ] Visual Tests: {{Status}}
+- [ ] Cross-browser Testing: {{Status}}
+
+#### Frontend Challenges & Solutions
+
+{{Any frontend blockers encountered and how they were resolved}}
+
+#### Frontend Handoff Notes
+
+{{Notes for QA team}}
+
+---
+
+### 🔍 Quality Assurance (Quinn) - QA Agent
+
+**Role**: Testing & Quality Validation  
+**Last Activity**: {{Date}}
+
+#### QA Work Summary
+{{QA work summary - what testing was completed}}
+
+#### Test Coverage
+
+- **Unit Tests**: {{Coverage percentage}}
+- **Integration Tests**: {{Coverage details}}
+- **E2E Tests**: {{Test scenarios covered}}
+- **Manual Tests**: {{Manual test cases executed}}
+
+#### Issues Found
+
+- {{Bug 1}}: {{Status}}
+- {{Bug 2}}: {{Status}}
+
+#### Quality Gates
+
+- [ ] Acceptance Criteria Met: {{Status}}
+- [ ] Performance Requirements: {{Status}}
+- [ ] Security Requirements: {{Status}}
+- [ ] Accessibility Standards: {{Status}}
+
+#### QA Handoff Notes
+
+{{Notes for dev-test team or next story}}
+
+---
+
+### 🧪 Test Developer (Alex) - Dev-Test Agent
+
+**Role**: Comprehensive Test Development  
+**Last Activity**: {{Date}}
+
+#### Test Development Work Summary
+{{Dev-Test work summary - what test development was completed}}
+
+#### Test Implementation
+
+- **Test Strategy**: {{Strategy used}}
+- **Test Frameworks**: {{Frameworks utilized}}
+- **Test Data**: {{Test data management}}
+
+#### Test Coverage Details
+
+- {{Specific test files created}}
+- {{Test scenarios implemented}}
+- {{Mocking/stubbing strategies}}
+
+#### Automation Setup
+
+- {{CI/CD test integration}}
+- {{Automated test reporting}}
+
+#### Test Development Handoff Notes
+
+{{Notes for ongoing maintenance}}
+
+---
+
+## Cross-Agent Collaboration
+
+### 🤝 Agent Handoffs
+
+| From Agent | To Agent | Date | Handoff Notes |
+|-----------|----------|------|---------------|
+| {{Agent}} | {{Agent}} | {{Date}} | {{Notes}} |
+
+### 🔄 Workflow Status
+
+- [ ] Story Creation (SM)
+- [ ] Backend Implementation (Dev)
+- [ ] Frontend Implementation (Frontend-Dev)
+- [ ] Quality Assurance (QA)
+- [ ] Test Development (Dev-Test)
+- [ ] Story Completion
+
+### 📊 Collaboration Metrics
+
+- **Total Agent Interactions**: {{Count}}
+- **Story Duration**: {{Start Date}} - {{End Date}}
+- **Blockers Resolved**: {{Count}}
+- **Cross-Agent Dependencies**: {{Count}}
+
+### 🎯 Story Completion Summary
+
+{{Final summary when story is complete - key achievements, learnings, improvements for next stories}}
+
+---
+
+## Additional Notes
+
+### 📋 Meeting Notes
+
+{{Any cross-agent discussions or decisions}}
+
+### 🔗 External References
+
+- {{Link 1}}: {{Description}}
+- {{Link 2}}: {{Description}}
+
+### 📈 Lessons Learned
+
+{{Process improvements identified for future stories}}
+
+---
+
+*Last Updated: {{Timestamp}} by {{Agent Name}}*
+==================== END: templates#collaboration-tmpl ====================
 
 ==================== START: checklists#story-draft-checklist ====================
 # Story Draft Checklist
